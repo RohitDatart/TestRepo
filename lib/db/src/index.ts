@@ -8,11 +8,16 @@ const { Pool } = pg;
 
 try {
   if (typeof process.loadEnvFile === "function") {
+    const dir = typeof __dirname !== "undefined" 
+      ? __dirname 
+      : (typeof import.meta !== "undefined" && typeof import.meta.dirname === "string" ? import.meta.dirname : "");
     const candidates = [
       path.resolve(process.cwd(), ".env"),
       path.resolve(process.cwd(), "../../.env"),
-      path.resolve(import.meta.dirname, "../../../.env"),
-    ];
+      dir ? path.resolve(dir, "../../../.env") : "",
+      dir ? path.resolve(dir, "../../.env") : "",
+      dir ? path.resolve(dir, "../.env") : "",
+    ].filter(Boolean);
     for (const p of candidates) {
       if (fs.existsSync(p)) {
         process.loadEnvFile(p);

@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
-const port = Number(process.env.PORT) || 5173;
+const port = Number(process.env.CLIENT_PORT || process.env.VITE_PORT || (process.env.PORT && process.env.PORT !== "8080" ? process.env.PORT : 5173));
 const basePath = process.env.BASE_PATH || "/";
 const apiTarget = process.env.API_URL || "http://localhost:8080";
 

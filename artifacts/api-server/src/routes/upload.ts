@@ -3,15 +3,9 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { authenticate } from "../middlewares/authenticate.js";
-import { fileURLToPath } from "url";
+import { getUploadsDir } from "../lib/paths.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const uploadsDir = path.resolve(__dirname, "../../uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+const uploadsDir = getUploadsDir();
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadsDir),
