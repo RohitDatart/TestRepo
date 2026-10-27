@@ -19,9 +19,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ImageUpload } from '@/components/image-upload';
+import { CsvUploadDialog } from '@/components/csv-upload-dialog';
 import {
   Play, Square, UserPlus, Upload, Shield, Image as ImageIcon,
-  TrendingUp, Radio
+  TrendingUp, Radio, FileSpreadsheet
 } from 'lucide-react';
 
 const teamSchema = z.object({
@@ -331,6 +332,7 @@ function PlayersTab({ auctionId, players, isAdmin }: { auctionId: string; player
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [addOpen, setAddOpen] = useState(false);
+  const [csvOpen, setCsvOpen] = useState(false);
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<z.infer<typeof playerSchema>>({ resolver: zodResolver(playerSchema) });
   const photoUrlValue = watch('photoUrl');
@@ -348,26 +350,6 @@ function PlayersTab({ auctionId, players, isAdmin }: { auctionId: string; player
     }
   });
 
-  const { mutate: uploadMut, isPending: uploading } = useBulkUploadPlayers({
-    request: { headers: getAuthHeaders() },
-    mutation: {
-      onSuccess: (data: any) => {
-        queryClient.invalidateQueries({ queryKey: getGetPlayersByAuctionQueryKey(auctionId) });
-        toast({ title: `Uploaded ${data.count} players successfully` });
-      },
-      onError: (err: any) => {
-        toast({ title: "CSV upload failed", description: err.data?.message || err.message || "Check your CSV format and try again", variant: "destructive" });
-      }
-    }
-  });
-
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    uploadMut({ data: { file, auctionId } as any });
-    e.target.value = '';
-  };
-
   const statusColors: Record<string, string> = {
     sold: 'success',
     unsold: 'destructive',
@@ -381,16 +363,36 @@ function PlayersTab({ auctionId, players, isAdmin }: { auctionId: string; player
         <h3 className="text-xl font-display">Player Pool ({players.length})</h3>
         {isAdmin && (
           <div className="flex gap-2">
-            <Label htmlFor="csv-upload" className="cursor-pointer">
-              <div className="inline-flex h-8 items-center justify-center rounded-md border border-border bg-background px-3 text-xs font-semibold hover:bg-accent">
-                {uploading ? "Uploading..." : <><Upload className="w-4 h-4 mr-2" /> CSV Upload</>}
-              </div>
-              <Input id="csv-upload" type="file" accept=".csv" className="hidden" onChange={handleFile} disabled={uploading} />
-            </Label>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCsvOpen(true)}
+              className="border-primary/30 text-white hover:bg-primary/10 hover:border-primary/60"
+            >
+              <FileSpreadsheet className="w-4 h-4 mr-2 text-primary" /> Upload CSV
+            </Button>
             <Dialog open={addOpen} onOpenChange={setAddOpen}>
               <DialogTrigger asChild><Button size="sm"><UserPlus className="w-4 h-4 mr-2" /> Add Player</Button></DialogTrigger>
               <DialogContent>
                 <DialogHeader><DialogTitle>Add New Player</DialogTitle></DialogHeader>
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-primary/5 border border-primary/20 text-xs">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <FileSpreadsheet className="w-4 h-4 text-primary shrink-0" />
+                    <span>Have multiple players?</span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs text-primary font-semibold hover:bg-primary/10 px-2"
+                    onClick={() => {
+                      setAddOpen(false);
+                      setCsvOpen(true);
+                    }}
+                  >
+                    Bulk Upload CSV
+                  </Button>
+                </div>
                 <form onSubmit={handleSubmit(d => addMut({ data: { ...d, auctionId } as any }))} className="space-y-4">
                   <div className="space-y-2"><Label>Name</Label><Input {...register('name')} /></div>
                   <div className="grid grid-cols-2 gap-4">
@@ -411,36 +413,60 @@ function PlayersTab({ auctionId, players, isAdmin }: { auctionId: string; player
         )}
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {players.map(p => (
-          <Card key={p.id} className="overflow-hidden border-white/5 relative group">
-            <div className="aspect-[3/4] relative bg-black/50">
-              {p.photoUrl ? (
-                <img src={resolveImageUrl(p.photoUrl)} alt={p.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-secondary/50">
-                  <ImageIcon className="w-10 h-10 mb-2 opacity-20" />
-                </div>
-              )}
-              <div className="absolute top-2 right-2">
-                <Badge variant={(statusColors[p.status] as any) || 'default'} className="text-[10px]">
-                  {p.status}
-                </Badge>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/90 to-transparent">
-                <p className="font-bold text-white truncate text-sm">{p.name}</p>
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-xs text-primary font-bold">{p.role}</span>
-                  <span className="text-xs text-white bg-black/50 px-1.5 py-0.5 rounded">{formatCurrency(p.basePrice)}</span>
-                </div>
-                {p.status === 'sold' && p.soldPrice && (
-                  <div className="text-xs text-green-400 font-bold mt-0.5">Sold: {formatCurrency(p.soldPrice)}</div>
-                )}
-              </div>
+      <CsvUploadDialog open={csvOpen} onOpenChange={setCsvOpen} auctionId={auctionId} />
+
+      {players.length === 0 ? (
+        <div className="border border-dashed border-border/70 rounded-2xl p-12 text-center flex flex-col items-center justify-center bg-card/30">
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-4 border border-primary/20">
+            <UserPlus className="w-7 h-7" />
+          </div>
+          <h4 className="text-lg font-bold text-white mb-1">No Players in Pool</h4>
+          <p className="text-sm text-muted-foreground max-w-md mb-6">
+            Start by adding players individually or bulk-import multiple players using a CSV spreadsheet.
+          </p>
+          {isAdmin && (
+            <div className="flex flex-wrap gap-3 justify-center">
+              <Button onClick={() => setAddOpen(true)}>
+                <UserPlus className="w-4 h-4 mr-2" /> Add Player
+              </Button>
+              <Button variant="outline" onClick={() => setCsvOpen(true)} className="border-primary/30">
+                <FileSpreadsheet className="w-4 h-4 mr-2 text-primary" /> Upload CSV
+              </Button>
             </div>
-          </Card>
-        ))}
-      </div>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {players.map(p => (
+            <Card key={p.id} className="overflow-hidden border-white/5 relative group">
+              <div className="aspect-[3/4] relative bg-black/50">
+                {p.photoUrl ? (
+                  <img src={resolveImageUrl(p.photoUrl)} alt={p.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-secondary/50">
+                    <ImageIcon className="w-10 h-10 mb-2 opacity-20" />
+                  </div>
+                )}
+                <div className="absolute top-2 right-2">
+                  <Badge variant={(statusColors[p.status] as any) || 'default'} className="text-[10px]">
+                    {p.status}
+                  </Badge>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/90 to-transparent">
+                  <p className="font-bold text-white truncate text-sm">{p.name}</p>
+                  <div className="flex justify-between items-center mt-1">
+                    <span className="text-xs text-primary font-bold">{p.role}</span>
+                    <span className="text-xs text-white bg-black/50 px-1.5 py-0.5 rounded">{formatCurrency(p.basePrice)}</span>
+                  </div>
+                  {p.status === 'sold' && p.soldPrice && (
+                    <div className="text-xs text-green-400 font-bold mt-0.5">Sold: {formatCurrency(p.soldPrice)}</div>
+                  )}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

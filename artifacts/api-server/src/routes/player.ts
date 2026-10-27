@@ -146,6 +146,12 @@ router.post(
     });
 
     const validRows = rows.filter((r) => r.name.trim());
+    if (validRows.length === 0) {
+      res.status(400).json({
+        message: "No valid player records found in CSV. Please ensure the CSV contains a 'name' column and player rows.",
+      });
+      return;
+    }
     const inserted = await db
       .insert(playersTable)
       .values(

@@ -6,11 +6,13 @@ import teamRouter from "./team.js";
 import playerRouter from "./player.js";
 import bidRouter from "./bid.js";
 import uploadRouter from "./upload.js";
+import publicRouter from "./public.js";
 
 const router = Router();
 
 router.use(healthRouter);
 router.use(authRouter);
+router.use(publicRouter);
 router.use(auctionRouter);
 router.use(teamRouter);
 router.use(playerRouter);
