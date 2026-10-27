@@ -1,0 +1,170 @@
+
+Create a full-stack real-time sports auction platform similar to BidAthlete.
+The system will allow tournament organizers to create auctions, add teams, upload players, and run live bidding.
+IMPORTANT TECH STACK REQUIREMENTS
+Frontend
+* React (Vite)
+* TailwindCSS
+* Axios
+* Socket.io client
+* Pure JavaScript only (DO NOT use TypeScript)
+Backend
+* Node.js
+* Express.js
+* Socket.io for real-time bidding
+* JWT authentication
+* CSV parser for bulk player upload
+* Multer only if needed
+* Pure JavaScript only
+Database
+* MongoDB with Mongoose
+
+CORE FEATURES
+1. Authentication System
+* JWT based login and registration
+* Roles:
+    * Admin (tournament organizer)
+    * Team owner
+* Endpoints: POST /api/auth/register POST /api/auth/login
+* Passwords must be hashed with bcrypt.
+
+1. Auction Management
+Admin can:
+* Create auction
+* Set auction name
+* Add auction logo
+* Set base rules
+* Start / stop auction
+Auction fields:
+* name
+* description
+* logo
+* teams
+* playerPool
+* auctionStatus
+* currentPlayer
+* createdBy
+API routes: POST /api/auction/create GET /api/auction/list GET /api/auction/:id PUT /api/auction/start PUT /api/auction/stop
+
+1. Team Management
+Admin can add teams.
+Team fields:
+* name
+* logo
+* purseAmount
+* playersBought
+* owner
+Endpoints: POST /api/team/create GET /api/team/:auctionId PUT /api/team/update
+
+1. Player Management
+Single Player Add
+Fields:
+* name
+* role
+* basePrice
+* age
+* team (null initially)
+* auctionId
+* photoUrl
+Endpoints: POST /api/player/add GET /api/player/:auctionId
+
+1. BULK PLAYER UPLOAD (IMPORTANT)
+Admin can upload players using a CSV file.
+CSV format example:
+name,role,city,photoUrl Virat Kohli,Batsman,pune,https://drive.google.com/uc?id=FILE_ID Rohit Sharma,Batsman,mumbai,https://drive.google.com/uc?id=FILE_ID
+IMPORTANT REQUIREMENT: photoUrl will be a public Google Drive image link.
+The system must:
+* store the photo URL
+* display it in the frontend player card
+* not download the image
+* directly render it as an image.
+Example usage in frontend:
+Endpoint: POST /api/player/bulk-upload
+Use a CSV parser to read the file and insert players into MongoDB.
+
+1. Live Auction System
+Use Socket.io.
+Features:
+* select next player
+* start bidding
+* teams place bids
+* show current highest bid
+* countdown timer
+* sold to highest bidder
+Socket events:
+auction:start auction:player auction:bid auction:update auction:sold
+Bid flow:
+1. Admin selects player
+2. Player appears on auction screen
+3. Teams send bids
+4. Server validates bid
+5. Highest bid broadcast to all clients
+6. When timer ends → player sold.
+
+1. Real-Time Auction UI
+React pages required:
+LoginPage RegisterPage AuctionListPage AuctionDashboard TeamManagementPage PlayerManagementPage LiveAuctionPage
+LiveAuctionPage must display:
+* current player photo
+* player name
+* role
+* base price
+* current highest bid
+* bidding teams
+* countdown timer.
+
+1. Frontend Architecture
+Use React with Vite.
+Folder structure:
+frontend /src /components /pages /services /context /socket
+Use Axios for API calls.
+Create an Axios instance with JWT token middleware.
+Use Socket.io client for real-time updates.
+
+1. Backend Structure
+/backend /controllers /models /routes /middleware /socket /utils
+MongoDB Models:
+User Auction Team Player Bid
+
+1. Player Card UI
+Each player card must show:
+* player image (Google Drive URL)
+* name
+* role
+* base price
+Example:
+
+1. Auction Flow
+Admin:
+Create Auction Add Teams Upload Players Start Auction
+During Auction:
+Admin selects player → Teams place bids → Highest bid wins → Player assigned to team.
+
+1. Security
+* JWT protected routes
+* Validate bids
+* Ensure team purse is not exceeded.
+
+1. UI Design
+Use TailwindCSS.
+Dashboard style layout.
+Auction screen should look like a sports broadcast screen.
+
+1. Final Requirement
+Generate:
+* full backend code
+* full frontend code
+* MongoDB models
+* API routes
+* Socket.io integration
+* CSV bulk upload system
+* Google Drive photo URL support
+All code must be pure JavaScript only (NO TypeScript).
+
+END GOAL
+A working real-time sports player auction platform where:
+* organizers create auctions
+* teams bid on players
+* players can be uploaded in bulk using CSV
+* player photos load from public Google Drive URLs
+* auction happens live using Socket.io.

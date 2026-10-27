@@ -1,0 +1,266 @@
+UPDATE AUCTION CREATION FORM
+
+When creating a new auction, the form must include these fields:
+
+auctionLogo (image upload or URL)
+
+auctionName
+
+auctionDate
+
+pointsPerTeam (total purse)
+
+playersPerTeam (max players)
+
+minimumBid
+
+bidIncreaseBy
+
+Update the Auction MongoDB schema to include:
+
+auctionLogo
+auctionName
+auctionDate
+pointsPerTeam
+playersPerTeam
+minimumBid
+bidIncreaseBy
+
+Example schema fields:
+
+{
+auctionLogo: String,
+auctionName: String,
+auctionDate: Date,
+pointsPerTeam: Number,
+playersPerTeam: Number,
+minimumBid: Number,
+bidIncreaseBy: Number
+}
+
+START AUCTION BEHAVIOR
+
+When admin clicks Start Auction:
+
+Automatically redirect to the Live Auction Room
+
+Server selects a random unsold player
+
+Broadcast player via Socket.io
+
+Socket event:
+
+auction
+
+The player card must show:
+
+player photo
+
+player name
+
+role
+
+base price
+
+LIVE BIDDING SYSTEM
+
+Below the player card display buttons for each team.
+
+Example:
+
+[ Team A ]
+[ Team B ]
+[ Team C ]
+
+When a team button is clicked:
+
+Increase bid by "bidIncreaseBy"
+
+Update current highest bid
+
+Set that team as current highest bidder
+
+Socket event example:
+
+auction
+
+Server must check:
+
+team has enough remaining points
+
+bid does not exceed remaining purse
+
+Broadcast update to all clients.
+
+UNDO BUTTON
+
+Add an Undo button.
+
+Undo must:
+
+revert to previous highest bid
+
+restore previous team
+
+restore previous amount
+
+Maintain a bid history stack in memory for the current player.
+
+SOLD / UNSOLD BUTTONS
+
+Add two buttons:
+
+SOLD
+UNSOLD
+
+If SOLD:
+
+player assigned to team with highest bid
+
+subtract bid amount from team purse
+
+add player to team squad
+
+update team player count
+
+If UNSOLD:
+
+mark player as unsold
+
+move to next random player
+
+TEAM CALCULATIONS
+
+For each team maintain:
+
+remainingPoints
+usedPoints
+playersBought
+
+Logic:
+
+usedPoints = sum of player bids
+remainingPoints = pointsPerTeam - usedPoints
+
+playersRemainingSlots = playersPerTeam - playersBought
+
+OVERVIEW TAB
+
+Add a new page/tab called Overview.
+
+Display a table with:
+
+Team Name
+Total Points
+Used Points
+Remaining Points
+Players Bought
+Remaining Slots
+Max Allowed Bid
+
+MAX BID CALCULATION
+
+Max allowed bid must be calculated as:
+
+maxBid = remainingPoints - ((remainingSlots - 1) * minimumBid)
+
+This ensures a team can still buy minimum players for remaining slots.
+
+Example:
+
+remainingPoints = 1000
+remainingSlots = 5
+minimumBid = 50
+
+maxBid = 1000 - (4 × 50) = 800
+
+Display this in the Overview table.
+
+TEAM DETAILS PAGE
+
+When clicking a team in Overview:
+
+Open a Team Details page.
+
+Display:
+
+Team Name
+Team Logo
+
+List of players bought:
+
+Player Photo
+Player Name
+Role
+Price Bought
+
+RANDOM PLAYER SELECTION
+
+When moving to next player:
+
+Server should randomly select from:
+
+players where status = "unsold"
+
+Ensure already sold players are excluded.
+
+FRONTEND LIVE AUCTION UI
+
+Live auction screen should contain:
+
+Left side:
+Current player card
+
+Center:
+Current highest bid
+
+Right side:
+Team buttons
+
+Bottom:
+Undo
+Sold
+Unsold
+Next Player
+
+SOCKET EVENTS
+
+Use these socket events:
+
+auction
+auction
+auction
+auction
+auction
+auction
+
+IMPORTANT
+
+All code must remain:
+
+Pure JavaScript
+
+Compatible with existing project
+
+No TypeScript
+
+Only modify necessary:
+
+models
+controllers
+socket logic
+React pages.
+
+Do not remove existing working functionality.
+
+END RESULT
+
+The auction should behave like a real sports auction:
+
+Start Auction → Random Player Appears →
+Teams Click Buttons to Bid →
+Undo available →
+Sold assigns player to team →
+Points and slots update →
+Overview shows team stats →
+Click team to view players.

@@ -1,0 +1,42 @@
+{
+  "name": "@workspace/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_ENV=development tsx watch ./src/server.ts",
+    "build": "tsx ./build.ts",
+    "start": "node ./dist/index.cjs",
+    "db:push": "drizzle-kit push --config ./drizzle.config.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@workspace/shared": "workspace:*",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2",
+    "csv-parser": "^3.2.0",
+    "drizzle-orm": "catalog:",
+    "drizzle-zod": "^0.8.3",
+    "express": "^5",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "pg": "^8.20.0",
+    "socket.io": "^4.8.3",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.1.0",
+    "@types/node": "catalog:",
+    "@types/pg": "^8.18.0",
+    "drizzle-kit": "^0.31.9",
+    "esbuild": "^0.27.3",
+    "tsx": "catalog:",
+    "typescript": "~5.9.2"
+  }
+}

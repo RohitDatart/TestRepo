@@ -1,0 +1,676 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Sports Auction Platform API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: auction
+    description: Auction management
+  - name: team
+    description: Team management
+  - name: player
+    description: Player management
+  - name: bid
+    description: Bidding operations
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /auction/create:
+    post:
+      operationId: createAuction
+      tags: [auction]
+      summary: Create an auction
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAuctionRequest"
+      responses:
+        "201":
+          description: Auction created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Auction"
+
+  /auction/list:
+    get:
+      operationId: listAuctions
+      tags: [auction]
+      summary: List all auctions
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of auctions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Auction"
+
+  /auction/{id}:
+    get:
+      operationId: getAuction
+      tags: [auction]
+      summary: Get auction by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Auction details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuctionDetail"
+
+  /auction/start:
+    put:
+      operationId: startAuction
+      tags: [auction]
+      summary: Start an auction
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuctionActionRequest"
+      responses:
+        "200":
+          description: Auction started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Auction"
+
+  /auction/stop:
+    put:
+      operationId: stopAuction
+      tags: [auction]
+      summary: Stop an auction
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuctionActionRequest"
+      responses:
+        "200":
+          description: Auction stopped
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Auction"
+
+  /team/create:
+    post:
+      operationId: createTeam
+      tags: [team]
+      summary: Create a team
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTeamRequest"
+      responses:
+        "201":
+          description: Team created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Team"
+
+  /team/{auctionId}:
+    get:
+      operationId: getTeamsByAuction
+      tags: [team]
+      summary: Get teams for an auction
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: auctionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Teams list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Team"
+
+  /team/update:
+    put:
+      operationId: updateTeam
+      tags: [team]
+      summary: Update a team
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTeamRequest"
+      responses:
+        "200":
+          description: Team updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Team"
+
+  /player/add:
+    post:
+      operationId: addPlayer
+      tags: [player]
+      summary: Add a single player
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlayerRequest"
+      responses:
+        "201":
+          description: Player added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+
+  /player/{auctionId}:
+    get:
+      operationId: getPlayersByAuction
+      tags: [player]
+      summary: Get players for an auction
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: auctionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Players list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Player"
+
+  /player/bulk-upload:
+    post:
+      operationId: bulkUploadPlayers
+      tags: [player]
+      summary: Bulk upload players from CSV
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                auctionId:
+                  type: string
+                basePrice:
+                  type: number
+      responses:
+        "201":
+          description: Players uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkUploadResponse"
+
+  /bid/history/{auctionId}:
+    get:
+      operationId: getBidHistory
+      tags: [bid]
+      summary: Get bid history for auction
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: auctionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Bid history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bid"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+      required:
+        - message
+
+    RegisterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [admin, teamOwner]
+      required:
+        - name
+        - email
+        - password
+        - role
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - token
+        - user
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+      required:
+        - id
+        - name
+        - email
+        - role
+
+    CreateAuctionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        logo:
+          type: string
+      required:
+        - name
+
+    AuctionActionRequest:
+      type: object
+      properties:
+        auctionId:
+          type: string
+      required:
+        - auctionId
+
+    Auction:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        logo:
+          type: string
+        auctionStatus:
+          type: string
+          enum: [pending, active, completed]
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - auctionStatus
+
+    AuctionDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        logo:
+          type: string
+        auctionStatus:
+          type: string
+        currentPlayer:
+          type: string
+          nullable: true
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+        teams:
+          type: array
+          items:
+            $ref: "#/components/schemas/Team"
+        playerPool:
+          type: array
+          items:
+            $ref: "#/components/schemas/Player"
+      required:
+        - id
+        - name
+        - auctionStatus
+
+    CreateTeamRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        logo:
+          type: string
+        purseAmount:
+          type: number
+        auctionId:
+          type: string
+        ownerEmail:
+          type: string
+      required:
+        - name
+        - purseAmount
+        - auctionId
+
+    UpdateTeamRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        logo:
+          type: string
+        purseAmount:
+          type: number
+      required:
+        - id
+
+    Team:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        logo:
+          type: string
+        purseAmount:
+          type: number
+        remainingPurse:
+          type: number
+        auctionId:
+          type: string
+        ownerEmail:
+          type: string
+        playersBought:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - name
+        - purseAmount
+        - auctionId
+
+    CreatePlayerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+        basePrice:
+          type: number
+        age:
+          type: number
+        city:
+          type: string
+        photoUrl:
+          type: string
+        auctionId:
+          type: string
+      required:
+        - name
+        - role
+        - basePrice
+        - auctionId
+
+    Player:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+        basePrice:
+          type: number
+        age:
+          type: number
+        city:
+          type: string
+        photoUrl:
+          type: string
+        auctionId:
+          type: string
+        teamId:
+          type: string
+          nullable: true
+        soldPrice:
+          type: number
+          nullable: true
+        status:
+          type: string
+          enum: [available, inBidding, sold, unsold]
+      required:
+        - id
+        - name
+        - role
+        - basePrice
+        - auctionId
+        - status
+
+    BulkUploadResponse:
+      type: object
+      properties:
+        count:
+          type: number
+        players:
+          type: array
+          items:
+            $ref: "#/components/schemas/Player"
+      required:
+        - count
+        - players
+
+    Bid:
+      type: object
+      properties:
+        id:
+          type: string
+        auctionId:
+          type: string
+        playerId:
+          type: string
+        teamId:
+          type: string
+        teamName:
+          type: string
+        amount:
+          type: number
+        createdAt:
+          type: string
+      required:
+        - id
+        - auctionId
+        - playerId
+        - teamId
+        - amount

@@ -1,0 +1,28 @@
+packages:
+  "framer-motion": "For high-energy broadcast style animations, number ticking, and transitions"
+  "socket.io-client": "For real-time live bidding updates"
+  "clsx": "For conditional class name merging"
+  "tailwind-merge": "For merging tailwind classes safely in UI components"
+  "react-hook-form": "For robust form state management"
+  "@hookform/resolvers": "For zod schema validation in forms"
+  "date-fns": "For formatting timestamps"
+  "zustand": "For simple global state management (socket connection state)"
+
+images:
+  - path: "artifacts/sports-auction/public/images/stadium-bg.png"
+    description: "A dark, atmospheric sports stadium at night with intense spotlights and subtle fog, deep navy blue and gold colors, cinematic lighting, out of focus"
+    aspect_ratio: "16:9"
+  - path: "artifacts/sports-auction/public/images/broadcast-bg.png"
+    description: "Abstract digital high-tech sports broadcast background, dynamic glowing lines in neon green and amber against a very dark slate background, subtle grid patterns"
+    aspect_ratio: "16:9"
+  - path: "artifacts/sports-auction/public/images/logo.png"
+    description: "A bold, modern sports logo featuring a stylized gavel and a shield, sharp geometric angles, gold and white on a transparent background"
+    aspect_ratio: "1:1"
+  - path: "artifacts/sports-auction/public/images/player-placeholder.png"
+    description: "A stylized silhouette of a generic athlete in dynamic pose, stark lighting, dark grey and silver tones, premium sports card style"
+    aspect_ratio: "3:4"
+
+notes:
+  - Assuming standard JWT Bearer token auth in Authorization header.
+  - Orval generated hooks are imported from @workspace/api-client-react.
+  - Socket.io connects to the same host using standard configuration.
