@@ -12,11 +12,11 @@ const router = Router();
 
 router.use(healthRouter);
 router.use(authRouter);
-router.use(publicRouter);
 router.use(auctionRouter);
 router.use(teamRouter);
 router.use(playerRouter);
 router.use(bidRouter);
 router.use(uploadRouter);
+router.use(publicRouter);
 
 export default router;

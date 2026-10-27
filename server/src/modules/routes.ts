@@ -1,7 +1,6 @@
 import { Router } from "express";
 import healthRouter from "./health/health.routes.js";
 import authRouter from "./auth/auth.routes.js";
-import publicRouter from "./public/public.routes.js";
 import auctionRouter from "./auction/auction.routes.js";
 import teamRouter from "./team/team.routes.js";
 import playerRouter from "./player/player.routes.js";
@@ -12,7 +11,6 @@ const router = Router();
 
 router.use(healthRouter);
 router.use(authRouter);
-router.use(publicRouter);
 router.use(auctionRouter);
 router.use(teamRouter);
 router.use(playerRouter);

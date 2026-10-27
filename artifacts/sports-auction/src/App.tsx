@@ -11,7 +11,6 @@ import RegisterPage from "@/pages/register";
 import AuctionListPage from "@/pages/auction-list";
 import AuctionDashboard from "@/pages/auction-dashboard";
 import LiveAuctionPage from "@/pages/live-auction";
-import AuctionViewerPage from "@/pages/auction-viewer";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -58,9 +57,6 @@ function Router() {
         <Route path="/auctions/:id/live">
           {() => <ProtectedRoute component={LiveAuctionPage} />}
         </Route>
-        
-        {/* Public viewer — no auth needed */}
-        <Route path="/view/:id" component={AuctionViewerPage} />
         
         <Route component={NotFound} />
       </Switch>

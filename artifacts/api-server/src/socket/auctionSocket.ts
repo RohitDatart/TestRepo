@@ -93,7 +93,11 @@ export function setupSocket(httpServer: HttpServer) {
 
   io.use((socket, next) => {
     const token = socket.handshake.auth["token"] || socket.handshake.query["token"];
-    if (!token) return next(new Error("Authentication required"));
+    if (!token) {
+      // Allow unauthenticated viewers — they can only receive broadcast events
+      (socket as any).user = { id: "viewer", email: "viewer", role: "viewer" };
+      return next();
+    }
     try {
       const user = verifyToken(token as string);
       (socket as typeof socket & { user: typeof user }).user = user;

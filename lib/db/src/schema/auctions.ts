@@ -14,6 +14,7 @@ export const auctionsTable = pgTable("auctions", {
   playersPerTeam: integer("players_per_team"),
   minimumBid: numeric("minimum_bid", { precision: 12, scale: 2 }),
   bidIncreaseBy: numeric("bid_increase_by", { precision: 12, scale: 2 }),
+  shareToken: text("share_token"),
   createdBy: uuid("created_by").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
